@@ -1,15 +1,21 @@
 class UserTokenModel {
-    constructor({key, owner, createdOn} = {}) {
+    constructor({key, owner, createdAt, expiresIn} = {}) {
         this.key = key;
         this.owner = owner;
-        this.createdOn = createdOn;
+        this.createdAt = createdAt;
+        this.expiresIn = expiresIn;
+    }
+
+    hasExpired() {
+        return token.createdAt + token.expiresIn <= new Date().getTime();
     }
 
     toObject() {
         return {
             key: this.key,
             owner: this.owner,
-            createdOn: this.createdOn
+            createdAt: this.createdAt,
+            expiresIn: this.expiresIn
         };
     }
 }

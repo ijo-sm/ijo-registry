@@ -8,9 +8,9 @@ class Users {
         this.tokens = new UserTokens();
     }
 
-    initialize({apiServer, databaseHandler} = {}) {
+    initialize({apiServer, databaseHandler} = {}, {secret, defaultExpiresIn} = {}) {
         this.api = new UserApi(this, apiServer);
-        this.tokens.initialize({databaseHandler});
+        this.tokens.initialize({databaseHandler}, {secret, defaultExpiresIn});
         databaseHandler.registerCollection("users", UserModel);
     }
 
@@ -29,6 +29,41 @@ class Users {
 
     add(user) {
         return this.collection.insertOne(user);
+    }
+
+    get(id) {
+        return this.collection.findOne({id});
+    }
+
+    verifyTokenAndGetUser(req, res) {
+        const token = req.getBearerToken();
+
+        if(token === undefined) {
+            res.sendError({message: "The user token is missing.", code: 400});
+            return;
+        }
+
+        return new Promise(resolve => {
+            this.auth.verifyAndGetToken(token)
+            .catch(err => {
+                if(err === "token-expired") {
+                    res.sendError({message: "The user token has expired.", code: 400});
+                }
+                else if(err === "incorrect-token") {
+                    res.sendError({message: "The user token was incorrect.", code: 400});
+                }
+                else {
+                    res.sendError({message: "An unexpected error occurred while verifying the user token", code: 500});
+                }
+
+                resolve();
+            })
+            .then(token => {
+                const user = this.get(token.owner);
+
+                resolve(user);
+            });
+        });
     }
 }
 

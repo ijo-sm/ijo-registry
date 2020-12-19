@@ -1,4 +1,5 @@
 const path = require("path");
+const {nanoid} = require("nanoid");
 const {ConfigFile, ApiServer} = require("ijo-utils");
 const DatabaseHandler = require("./database/handler");
 const Users = require("./user/manager");
@@ -7,7 +8,7 @@ class Registry {
     constructor() {
         this.apiServer = new ApiServer();
         this.config = new ConfigFile(path.join(this.root, "./config.json"), {defaults: {
-            api: {port: 8082},
+            api: {port: 8082, secret: nanoid(32), defaultExpiresIn: 1000*3600*24*7*5},
             database: {url: "mongodb://localhost:27017", name: "ijo-registry"}
         }});
         this.databaseHandler = new DatabaseHandler();
@@ -21,7 +22,13 @@ class Registry {
     async initialize() {
         await this.config.load();
         this.apiServer.initialize();
-        this.users.initialize({apiServer: this.apiServer, databaseHandler: this.databaseHandler});
+        this.users.initialize({
+            apiServer: this.apiServer, 
+            databaseHandler: this.databaseHandler
+        }, {
+            secret: this.config.get("api").secret,
+            defaultExpiresIn: this.config.get("api").defaultExpiresIn
+        });
     }
 
     async start() {
