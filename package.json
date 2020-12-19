@@ -1,0 +1,27 @@
+{
+  "name": "ijo-registry",
+  "version": "0.0.1",
+  "description": "The plugin registry for IJO.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ijo-sm/ijo-registry.git"
+  },
+  "keywords": [
+    "registry",
+    "server-manager",
+    "ijo"
+  ],
+  "author": "ijo-sm",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ijo-sm/ijo-registry/issues"
+  },
+  "homepage": "https://github.com/ijo-sm/ijo-registry#readme",
+  "dependencies": {
+    "ijo-utils": "github:ijo-sm/ijo-utils"
+  }
+}
