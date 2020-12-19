@@ -1,15 +1,22 @@
 const {nanoid} = require("nanoid");
 const UserApi = require("./api");
-const UserModel = require("./model")
+const UserModel = require("./model");
+const UserTokens = require("./token/manager");
 
 class Users {
+    constructor() {
+        this.tokens = new UserTokens();
+    }
+
     initialize({apiServer, databaseHandler} = {}) {
         this.api = new UserApi(this, apiServer);
+        this.tokens.initialize({databaseHandler});
         databaseHandler.registerCollection("users", UserModel);
     }
 
     load({databaseHandler} = {}) {
         this.collection = databaseHandler.collection("users");
+        this.tokens.load({databaseHandler});
     }
 
     create({username, password, email} = {}) {
