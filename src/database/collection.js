@@ -11,11 +11,17 @@ class Collection {
     async findOne(query) {
         const item = await this.collection.findOne(query);
 
+        if(item === undefined) return;
+
         return new (this.model)(item);
     }
 
     removeOne(query) {
         return this.collection.deleteOne(query);
+    }
+
+    remove(query) {
+        return this.collection.deleteMany(query);
     }
 }
 

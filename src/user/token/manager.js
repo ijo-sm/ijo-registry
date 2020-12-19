@@ -47,6 +47,10 @@ class UserTokens {
         return this.collection.removeOne({key});
     }
 
+    removeByUser(user) {
+        return this.collection.removeMany({owner: user.id});
+    }
+
     async removeExpired(key) {
         const token = await this.get(key);
 
@@ -69,7 +73,10 @@ class UserTokens {
                 else if(!decoded.key) reject("incorrect-token");
                 else {
                     this.get({key: decoded.key})
-                    .then(token => resolve(token))
+                    .then(token => {
+                        if(token === undefined) reject("incorrect-token");
+                        else resolve(token);
+                    })
                     .catch(err => reject(err));
                 }
             });

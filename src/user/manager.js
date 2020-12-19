@@ -31,8 +31,21 @@ class Users {
         return this.collection.insertOne(user);
     }
 
-    get(id) {
-        return this.collection.findOne({id});
+    get(query) {
+        return this.collection.findOne(query);
+    }
+
+    async isUsernameInUse(username) {
+        return await this.get({username}) !== undefined;
+    }
+
+    async isEmailInUse(email) {
+        return await this.get({email}) !== undefined;
+    }
+
+    async remove(user) {
+        await this.tokens.removeByUser(user);
+        await this.collection.removeOne({id: user.id});
     }
 
     verifyTokenAndGetUser(req, res) {
@@ -59,9 +72,12 @@ class Users {
                 resolve();
             })
             .then(token => {
-                const user = this.get(token.owner);
-
-                resolve(user);
+                this.get({id: token.owner})
+                .then(user => resolve(user))
+                .catch(() => {
+                    res.sendError({message: "An unexpected error occurred while verifying the user token", code: 500});
+                    resolve();
+                });
             });
         });
     }
